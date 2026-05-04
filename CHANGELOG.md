@@ -4,6 +4,14 @@ The user manual is available at <https://esp32-si4732.github.io/ats-mini/manual.
 
 <!-- towncrier release notes start -->
 
+## 2.34.1 (2026-05-04)
+
+### Added
+- Add Audio Profile feature with presets: Normal, Voz, Música, DX, Alto Volume, Voz Forte
+  - Accessible via Settings -> Perfil Áudio
+  - Each profile adjusts volume, AGC, AVC, soft mute, and bandwidth settings for optimal listening
+  - Profiles are saved in persistent memory and can be changed at any time
+
 ## 2.33 (2025-09-22)
 
 
