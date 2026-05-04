@@ -125,7 +125,8 @@ static const char *menu[] =
 #define MENU_USBMODE      12
 #define MENU_BLEMODE      13
 #define MENU_WIFIMODE     14
-#define MENU_ABOUT        15
+#define MENU_AUDIOPROFILE 15
+#define MENU_ABOUT        16
 
 
 int8_t settingsIdx = MENU_BRIGHTNESS;
@@ -147,6 +148,7 @@ static const char *settings[] =
   "Porta USB",
   "Bluetooth",
   "Wi-Fi",
+  "Perfil Áudio",
   "Sobre",
 };
 
@@ -579,6 +581,253 @@ void doAvc(int16_t enc)
   rx.setAvcAmMaxGain(newAvcIdx);
 }
 
+void applyAudioProfile()
+{
+  // Apply volume based on profile
+  switch(audioProfileIdx)
+  {
+    case AUDIO_PROFILE_NORMAL:
+      volume = 32; // Medium volume
+      break;
+    case AUDIO_PROFILE_VOZ:
+      volume = 40; // Slightly higher for voice clarity
+      break;
+    case AUDIO_PROFILE_MUSICA:
+      volume = 35; // Balanced for music
+      break;
+    case AUDIO_PROFILE_DX:
+      volume = 28; // Lower volume for weak signal listening
+      break;
+    case AUDIO_PROFILE_ALTO_VOLUME:
+      volume = 63; // Maximum volume
+      break;
+    case AUDIO_PROFILE_VOZ_FORTE:
+      volume = 50; // Loud voice
+      break;
+    default:
+      volume = 32; // Default to normal
+      break;
+  }
+  if(!muteOn(MUTE_MAIN)) rx.setVolume(volume);
+
+  // Apply AGC/ATTN settings
+  switch(audioProfileIdx)
+  {
+    case AUDIO_PROFILE_NORMAL:
+      // FM: AGC ON, AM: AGC ON, SSB: AGC ON
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+    case AUDIO_PROFILE_VOZ:
+      // FM: AGC ON, AM: AGC ON, SSB: AGC ON (voice needs stable levels)
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+    case AUDIO_PROFILE_MUSICA:
+      // FM: AGC ON, AM: AGC ON, SSB: AGC ON (music needs stable levels)
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+    case AUDIO_PROFILE_DX:
+      // FM: AGC ON (for weak signals), AM: AGC ON, SSB: AGC ON
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+    case AUDIO_PROFILE_ALTO_VOLUME:
+      // FM: AGC ON (prevent distortion at high volume), AM: AGC ON, SSB: AGC ON
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+    case AUDIO_PROFILE_VOZ_FORTE:
+      // FM: AGC ON, AM: AGC ON, SSB: AGC ON
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+    default:
+      // Default to normal
+      FmAgcIdx = 0;
+      AmAgcIdx = 0;
+      SsbAgcIdx = 0;
+      break;
+  }
+  // Process AGC indices to generate disableAgc and agcNdx for SI4735
+  if(currentMode==FM)
+    agcIdx = FmAgcIdx;
+  else if(isSSB())
+    agcIdx = SsbAgcIdx;
+  else
+    agcIdx = AmAgcIdx;
+
+  disableAgc = agcIdx>0? 1 : 0;
+  agcNdx     = agcIdx>1? agcIdx - 1 : 0;
+  rx.setAutomaticGainControl(disableAgc, agcNdx);
+
+  // Apply AVC settings (only for AM and SSB)
+  if(currentMode!=FM) // AVC not available in FM
+  {
+    switch(audioProfileIdx)
+    {
+      case AUDIO_PROFILE_NORMAL:
+        AmAvcIdx = 48;
+        SsbAvcIdx = 48;
+        break;
+      case AUDIO_PROFILE_VOZ:
+        AmAvcIdx = 40; // Lower gain for voice
+        SsbAvcIdx = 40;
+        break;
+      case AUDIO_PROFILE_MUSICA:
+        AmAvcIdx = 50; // Slightly higher for music dynamics
+        SsbAvcIdx = 50;
+        break;
+      case AUDIO_PROFILE_DX:
+        AmAvcIdx = 60; // Higher gain for weak signals
+        SsbAvcIdx = 60;
+        break;
+      case AUDIO_PROFILE_ALTO_VOLUME:
+        AmAvcIdx = 70; // High gain for loud volume
+        SsbAvcIdx = 70;
+        break;
+      case AUDIO_PROFILE_VOZ_FORTE:
+        AmAvcIdx = 55; // Moderate-high gain for loud voice
+        SsbAvcIdx = 55;
+        break;
+      default:
+        AmAvcIdx = 48;
+        SsbAvcIdx = 48;
+        break;
+    }
+
+    // Apply AVC setting
+    if(isSSB())
+      rx.setAvcAmMaxGain(SsbAvcIdx);
+    else
+      rx.setAvcAmMaxGain(AmAvcIdx);
+
+    // For SSB, also enable AVC
+    if(isSSB())
+      rx.setSSBAutomaticVolumeControl(1);
+  }
+
+  // Apply Soft Mute settings (only for AM and SSB)
+  if(currentMode!=FM) // Soft mute not available in FM
+  {
+    switch(audioProfileIdx)
+    {
+      case AUDIO_PROFILE_NORMAL:
+        AmSoftMuteIdx = 4;
+        SsbSoftMuteIdx = 4;
+        break;
+      case AUDIO_PROFILE_VOZ:
+        AmSoftMuteIdx = 2; // Less mute for voice clarity
+        SsbSoftMuteIdx = 2;
+        break;
+      case AUDIO_PROFILE_MUSICA:
+        AmSoftMuteIdx = 6; // More mute for music noise reduction
+        SsbSoftMuteIdx = 6;
+        break;
+      case AUDIO_PROFILE_DX:
+        AmSoftMuteIdx = 8; // More mute for weak signal DXing
+        SsbSoftMuteIdx = 8;
+        break;
+      case AUDIO_PROFILE_ALTO_VOLUME:
+        AmSoftMuteIdx = 1; // Less mute for maximum volume
+        SsbSoftMuteIdx = 1;
+        break;
+      case AUDIO_PROFILE_VOZ_FORTE:
+        AmSoftMuteIdx = 3; // Slightly less mute for loud voice
+        SsbSoftMuteIdx = 3;
+        break;
+      default:
+        AmSoftMuteIdx = 4;
+        SsbSoftMuteIdx = 4;
+        break;
+    }
+
+    // Apply soft mute setting
+    if(isSSB())
+      rx.setSsbSoftMuteMaxAttenuation(SsbSoftMuteIdx);
+    else
+      rx.setAmSoftMuteMaxAttenuation(AmSoftMuteIdx);
+  }
+
+  // Apply Bandwidth settings
+  switch(audioProfileIdx)
+  {
+    case AUDIO_PROFILE_NORMAL:
+      // FM: Auto (0), AM: 1.0kHz (4), SSB: 0.5kHz (4)
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 0; // Auto
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 4; // 0.5kHz
+      else
+        bands[bandIdx].bandwidthIdx = 4; // 1.0kHz
+      break;
+    case AUDIO_PROFILE_VOZ:
+      // FM: 84k (2) for voice clarity, AM: 1.8kHz (5), SSB: 1.0kHz (5)
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 2; // 84kHz
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 5; // 1.0kHz
+      else
+        bands[bandIdx].bandwidthIdx = 5; // 1.8kHz
+      break;
+    case AUDIO_PROFILE_MUSICA:
+      // FM: 110k (1) for full music, AM: 2.5kHz (6), SSB: 2.2kHz (1)
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 1; // 110kHz
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 1; // 2.2kHz
+      else
+        bands[bandIdx].bandwidthIdx = 6; // 2.5kHz
+      break;
+    case AUDIO_PROFILE_DX:
+      // FM: 40k (4) for weak signals, AM: 1.0kHz (4), SSB: 0.5kHz (4)
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 4; // 40kHz
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 4; // 0.5kHz
+      else
+        bands[bandIdx].bandwidthIdx = 4; // 1.0kHz
+      break;
+    case AUDIO_PROFILE_ALTO_VOLUME:
+      // FM: 60k (3) for loud volume, AM: 3.0kHz (2), SSB: 3.0kHz (2)
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 3; // 60kHz
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 2; // 3.0kHz
+      else
+        bands[bandIdx].bandwidthIdx = 2; // 3.0kHz
+      break;
+    case AUDIO_PROFILE_VOZ_FORTE:
+      // FM: 84k (2) for loud voice, AM: 2.0kHz (3), SSB: 1.2kHz (0)
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 2; // 84kHz
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 0; // 1.2kHz
+      else
+        bands[bandIdx].bandwidthIdx = 3; // 2.0kHz
+      break;
+    default:
+      // Default to normal
+      if(currentMode==FM)
+        bands[bandIdx].bandwidthIdx = 0; // Auto
+      else if(isSSB())
+        bands[bandIdx].bandwidthIdx = 4; // 0.5kHz
+      else
+        bands[bandIdx].bandwidthIdx = 4; // 1.0kHz
+      break;
+  }
+
+  // Apply bandwidth setting to the radio
+  setBandwidth();
+}
+
 void doFmRegion(int16_t enc)
 {
   // Only allow for FM mode
@@ -650,6 +899,12 @@ static void doUTCOffset(int16_t enc)
 {
   utcOffsetIdx = wrap_range(utcOffsetIdx, enc, 0, LAST_ITEM(utcOffsets));
   clockRefreshTime();
+}
+
+static void doAudioProfile(int16_t enc)
+{
+  audioProfileIdx = wrap_range(audioProfileIdx, enc, 0, AUDIO_PROFILE_COUNT - 1);
+  applyAudioProfile();
 }
 
 static void doZoom(int16_t enc)
@@ -916,6 +1171,7 @@ static void clickSettings(int cmd, bool shortPress)
       // Only in FM mode
       if(currentMode==FM) currentCmd = CMD_FM_REGION;
       break;
+    case MENU_AUDIOPROFILE: currentCmd = CMD_AUDIOPROFILE; break;
     case MENU_ABOUT:      currentCmd = CMD_ABOUT;     break;
 
     case MENU_LOADEIBI:
@@ -954,6 +1210,7 @@ bool doSideBar(uint16_t cmd, int16_t enc, int16_t enca)
     case CMD_USBMODE:    doUSBMode(scrollDirection * enc);break;
     case CMD_BLEMODE:    doBleMode(scrollDirection * enc);break;
     case CMD_WIFIMODE:   doWiFiMode(scrollDirection * enc);break;
+    case CMD_AUDIOPROFILE: doAudioProfile(scrollDirection * enc);break;
     case CMD_ZOOM:       doZoom(enc);break;
     case CMD_SCROLL:     doScrollDir(enc);break;
     case CMD_UTCOFFSET:  doUTCOffset(scrollDirection * enc);break;

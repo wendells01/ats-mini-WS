@@ -44,6 +44,7 @@
 #define CMD_USBMODE    0x2D00 // |
 #define CMD_BLEMODE    0x2E00 // |
 #define CMD_WIFIMODE   0x2F00 // |
+#define CMD_AUDIOPROFILE 0x3100 //
 #define CMD_ABOUT      0x3000 //-+
 
 // UI Layouts
@@ -132,5 +133,7 @@ void doCal(int16_t enc);
 void doStep(int16_t enc);
 void doMode(int16_t enc);
 void doBand(int16_t enc);
+void doAudioProfile(int16_t enc);
+void applyAudioProfile();
 
 #endif // MENU_H

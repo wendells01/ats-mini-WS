@@ -30,6 +30,17 @@ extern uint8_t knobMode;
 #define USB           2
 #define AM            3
 
+// Audio Profiles
+#define AUDIO_PROFILE_NORMAL    0
+#define AUDIO_PROFILE_VOZ       1
+#define AUDIO_PROFILE_MUSICA    2
+#define AUDIO_PROFILE_DX        3
+#define AUDIO_PROFILE_ALTO_VOLUME 4
+#define AUDIO_PROFILE_VOZ_FORTE 5
+#define AUDIO_PROFILE_COUNT     6
+
+extern uint8_t audioProfileIdx;
+
 // RDS Modes
 #define RDS_PS        0b00000001  // Station name
 #define RDS_CT        0b00000010  // Time
@@ -167,6 +178,7 @@ extern uint8_t rdsModeIdx;
 extern uint8_t usbModeIdx;
 extern uint8_t bleModeIdx;
 extern uint8_t wifiModeIdx;
+extern uint8_t audioProfileIdx;
 extern uint8_t FmRegionIdx;
 
 extern int8_t agcIdx;
