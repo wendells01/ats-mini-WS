@@ -91,19 +91,19 @@ int8_t menuIdx = MENU_VOLUME;
 
 static const char *menu[] =
 {
-  "Mode",
-  "Band",
-  "Volume",
-  "Step",
-  "Seek",
-  "Scan",
-  "Memory",
+  "Modo",
+  "Banda",
+  "Vol.",
+  "Passo",
+  "Busca",
+  "Varredura",
+  "Memória",
   "Squelch",
-  "Bandwidth",
-  "AGC/ATTN",
+  "Largura",
+  "AGC/Attn",
   "AVC",
   "SoftMute",
-  "Settings",
+  "Config.",
 };
 
 //
@@ -132,22 +132,22 @@ int8_t settingsIdx = MENU_BRIGHTNESS;
 
 static const char *settings[] =
 {
-  "Brightness",
-  "Calibration",
+  "Brilho",
+  "Calibração",
   "RDS",
-  "UTC Offset",
-  "FM Region",
-  "Theme",
-  "UI Layout",
-  "Zoom Menu",
-  "Scroll Dir.",
-  "Sleep",
-  "Sleep Mode",
-  "Load EiBi",
-  "USB Port",
+  "Fuso UTC",
+  "Região FM",
+  "Tema",
+  "Layout UI",
+  "Menu Zoom",
+  "Dir. Rolagem",
+  "Sono",
+  "Modo Sono",
+  "Carregar EiBi",
+  "Porta USB",
   "Bluetooth",
   "Wi-Fi",
-  "About",
+  "Sobre",
 };
 
 //
@@ -157,7 +157,7 @@ const FMRegion fmRegions[] = {
   // 50uS de-emphasis
   { 0x1, "EU/JP/AU" },
   // 75uS de-emphasis
-  { 0x2, "US" },
+  { 0x2, "EUA" },
 };
 
 int getTotalFmRegions() { return(ITEM_COUNT(fmRegions)); }
@@ -192,9 +192,9 @@ static const RDSMode rdsMode[] =
   { RDS_PS | RDS_PI, "PS+PI" },
   { RDS_PS | RDS_PI | RDS_CT, "PS+PI+CT" },
   { RDS_PS | RDS_PI | RDS_RT | RDS_PT, "ALL-CT (EU)" },
-  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_RBDS, "ALL-CT (US)" },
+  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_RBDS, "ALL-CT (EUA)" },
   { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT, "ALL (EU)" },
-  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT | RDS_RBDS, "ALL (US)" },
+  { RDS_PS | RDS_PI | RDS_RT | RDS_PT | RDS_CT | RDS_RBDS, "ALL (EUA)" },
 };
 
 uint8_t getRDSMode() { return(rdsMode[rdsModeIdx].mode); }
@@ -205,7 +205,7 @@ uint8_t getRDSMode() { return(rdsMode[rdsModeIdx].mode); }
 
 uint8_t sleepModeIdx = SLEEP_LOCKED;
 static const char *sleepModeDesc[] =
-{ "Locked", "Unlocked", "CPU Sleep" };
+{ "Bloqueado", "Desbloqueado", "Sono CPU" };
 
 //
 // UTC Offset Menu
@@ -273,7 +273,7 @@ static const char *uiLayoutDesc[] =
 
 uint8_t usbModeIdx = USB_OFF;
 static const char *usbModeDesc[] =
-{ "Off", "Ad hoc" };
+{ "Desligado", "Ad hoc" };
 
 int getTotalUSBModes() { return(ITEM_COUNT(usbModeDesc)); }
 
@@ -283,7 +283,7 @@ int getTotalUSBModes() { return(ITEM_COUNT(usbModeDesc)); }
 
 uint8_t bleModeIdx = BLE_OFF;
 static const char *bleModeDesc[] =
-{ "Off", "Ad hoc" };
+{ "Desligado", "Ad hoc" };
 
 int getTotalBleModes() { return(ITEM_COUNT(bleModeDesc)); }
 
@@ -293,7 +293,7 @@ int getTotalBleModes() { return(ITEM_COUNT(bleModeDesc)); }
 
 uint8_t wifiModeIdx = NET_OFF;
 static const char *wifiModeDesc[] =
-{ "Off", "AP Only", "AP+Connect", "Connect", "Sync Only" };
+{ "Desligado", "AP Only", "AP+Conectar", "Conectar", "Sinc. Só" };
 
 //
 // Step Menu
@@ -1456,7 +1456,7 @@ static void drawAgc(int x, int y, int sx)
   {
     spr.setFreeFont(&Orbitron_Light_24);
     spr.drawString("AGC", 40+x+(sx/2), 48+y);
-    spr.drawString("On", 40+x+(sx/2), 72+y);
+    spr.drawString("Ligado", 40+x+(sx/2), 72+y);
     spr.setTextFont(0);
   }
   else
@@ -1480,7 +1480,7 @@ static void drawSquelch(int x, int y, int sx)
   }
   else
   {
-    spr.drawString("Off", 40+x+(sx/2), 60+y, 4);
+    spr.drawString("Desligado", 40+x+(sx/2), 60+y, 4);
   }
 }
 
@@ -1491,7 +1491,7 @@ static void drawSoftMuteMaxAtt(int x, int y, int sx)
   spr.setTextDatum(MC_DATUM);
 
   spr.setTextColor(TH.menu_param);
-  spr.drawString("Max Attn", 40+x+(sx/2), 32+y, 2);
+  spr.drawString("Attn. Máx", 40+x+(sx/2), 32+y, 2);
   spr.drawNumber(softMuteMaxAttIdx, 40+x+(sx/2), 60+y, 4);
   spr.drawString("dB", 40+x+(sx/2), 90+y, 4);
 }
@@ -1526,7 +1526,7 @@ static void drawAvc(int x, int y, int sx)
   spr.setTextDatum(MC_DATUM);
 
   spr.setTextColor(TH.menu_param);
-  spr.drawString("Max Gain", 40+x+(sx/2), 32+y, 2);
+  spr.drawString("Ganho Máx", 40+x+(sx/2), 32+y, 2);
 
   // Only show AVC for AM and SSB modes
   if(currentMode!=FM)
@@ -1588,7 +1588,7 @@ static void drawZoom(int x, int y, int sx)
   spr.setTextDatum(MC_DATUM);
 
   spr.setTextColor(TH.menu_param);
-  spr.drawString(zoomMenu ? "On" : "Off", 40+x+(sx/2), 60+y, 4);
+  spr.drawString(zoomMenu ? "Ligado" : "Desligado", 40+x+(sx/2), 60+y, 4);
 }
 
 static void drawScrollDir(int x, int y, int sx)
@@ -1613,7 +1613,7 @@ static void drawInfo(int x, int y, int sx)
   spr.fillSmoothRoundRect(1+x, 1+y, 76+sx, 110, 4, TH.box_border);
   spr.fillSmoothRoundRect(2+x, 2+y, 74+sx, 108, 4, TH.box_bg);
 
-  spr.drawString("Step:", 6+x, 64+y+(-3*16), 2);
+  spr.drawString("Passo:", 6+x, 64+y+(-3*16), 2);
   spr.drawString(getCurrentStep()->desc, 48+x, 64+y+(-3*16), 2);
 
   spr.drawString("BW:", 6+x, 64+y+(-2*16), 2);
@@ -1622,7 +1622,7 @@ static void drawInfo(int x, int y, int sx)
   if(!agcNdx && !agcIdx)
   {
     spr.drawString("AGC:", 6+x, 64+y+(-1*16), 2);
-    spr.drawString("On", 48+x, 64+y+(-1*16), 2);
+    spr.drawString("Ligado", 48+x, 64+y+(-1*16), 2);
   }
   else
   {
@@ -1635,7 +1635,7 @@ static void drawInfo(int x, int y, int sx)
   if(muteOn(MUTE_MAIN) || muteOn(MUTE_SQUELCH))
   {
     spr.setTextColor(TH.box_off_text, TH.box_off_bg);
-    sprintf(text, muteOn(MUTE_MAIN) ? "Muted" : "%d/sq", volume);
+    sprintf(text, muteOn(MUTE_MAIN) ? "Silenciado" : "%d/sq", volume);
     spr.drawString(text, 48+x, 64+y+(0*16), 2);
     spr.setTextColor(TH.box_text);
   }
@@ -1670,7 +1670,7 @@ static void drawInfo(int x, int y, int sx)
   // Draw current time
   if(clockGet())
   {
-    spr.drawString("Time:", 6+x, 64+y+(2*16), 2);
+    spr.drawString("Hora:", 6+x, 64+y+(2*16), 2);
     spr.drawString(clockGet(), 48+x, 64+y+(2*16), 2);
   }
 }

@@ -76,10 +76,10 @@ void drawLayoutDefault(const char *statusLine1, const char *statusLine2)
   if(knobMode == KNOB_MODE_VOLUME) {
     spr.setTextDatum(TL_DATUM);
     spr.setTextColor(TH.text);
-    spr.drawString("VOL", 280, 12, 2);
+    spr.drawString("Vol.", 280, 12, 2);
   } else {
     spr.setTextDatum(TL_DATUM);
     spr.setTextColor(TH.text);
-    spr.drawString("FREQ", 280, 12, 2);
+    spr.drawString("Freq.", 280, 12, 2);
   }
 }
