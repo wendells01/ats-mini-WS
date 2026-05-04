@@ -133,7 +133,7 @@ void doCal(int16_t enc);
 void doStep(int16_t enc);
 void doMode(int16_t enc);
 void doBand(int16_t enc);
-void doAudioProfile(int16_t enc);
+static void doAudioProfile(int16_t enc);
 void applyAudioProfile();
 
 #endif // MENU_H
