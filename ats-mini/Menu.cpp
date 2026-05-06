@@ -21,6 +21,7 @@
 //
 
 int bandIdx = 0;
+uint8_t audioProfileIdx = AUDIO_PROFILE_NORMAL;
 
 // Band limits are expanded to align with the nearest tuning scale mark
 // Do not forget to update the bands table in the manual.md

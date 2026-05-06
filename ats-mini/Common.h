@@ -39,8 +39,6 @@ extern uint8_t knobMode;
 #define AUDIO_PROFILE_VOZ_FORTE 5
 #define AUDIO_PROFILE_COUNT     6
 
-extern uint8_t audioProfileIdx;
-
 // RDS Modes
 #define RDS_PS        0b00000001  // Station name
 #define RDS_CT        0b00000010  // Time
